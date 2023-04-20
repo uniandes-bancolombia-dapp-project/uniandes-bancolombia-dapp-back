@@ -11,8 +11,12 @@ const auth = express.Router();
 
 auth.get('/login', (_req, res) => {
 	const walletId = _req.query.walletId.toString();
-	loginUser(walletId).then((user: User) => {
-		res.json(user);
+	loginUser(walletId).then((userObj: User) => {
+		if (!userObj) {
+			res.status(401).send(null);
+		} else {
+			res.status(200).json(userObj);
+		}
 	});
 });
 

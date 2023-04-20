@@ -4,7 +4,6 @@ import { auth, resolver, loaders } from '@iden3/js-iden3-auth';
 import getRawBody from 'raw-body';
 
 export const loginUser = async (walletId: string) => {
-	console.log('walletId >>>>>>>' + walletId);
 	const user: User = await getUserByWalletId(walletId);
 	return user;
 };
