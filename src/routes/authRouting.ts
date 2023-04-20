@@ -4,6 +4,7 @@ import {
 	getAuthRequest,
 	getStatus,
 	loginUser,
+	registerUser,
 } from '../services/authService';
 import { User } from '../types';
 
@@ -20,8 +21,16 @@ auth.get('/login', (_req, res) => {
 	});
 });
 
-auth.post('/', (_req, res) => {
-	console.log(`${res}`);
+auth.post('/register', (_req, res) => {
+	const walletId = _req.query.walletId.toString();
+	const user = _req.body;
+	registerUser(user, walletId, (data) => {
+		if (!data) {
+			res.status(400).send(null);
+		} else {
+			res.status(201).send(data);
+		}
+	});
 });
 
 auth.get('/sign-in', (_req, res) => {

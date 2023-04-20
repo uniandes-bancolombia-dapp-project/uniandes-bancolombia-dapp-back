@@ -8,9 +8,86 @@ export const loginUser = async (walletId: string) => {
 	return user;
 };
 
-export const registerUser = async (user: User, walletId: string) => {
-	user.walletId = walletId;
-	addUser(user);
+export const registerUser = async (
+	user: User,
+	walletId: string,
+	callback: (response) => void
+) => {
+	let flag: boolean = true;
+	let validDtypes = ['cc', 'pp', 'ce'];
+
+	if (walletId !== null) {
+		if ((await getUserByWalletId(walletId)) !== null) {
+			flag = false;
+		} else {
+			if (user.name.length === 0) {
+				flag = false;
+			}
+			if (!validDtypes.includes(user.documentType)) {
+				flag = false;
+			}
+			if (user.documentNumber.length === 0) {
+				flag = false;
+			}
+			if (Number.isNaN(user.birthDate)) {
+				flag = false;
+			}
+			if (user.email.length < 0 || !user.email.includes('@')) {
+				flag = false;
+			}
+		}
+		user.walletId = walletId;
+	} else {
+		flag = false;
+	}
+	if (flag) {
+		const response = await addUser(user);
+		if (response.insertedId) {
+			const body = {
+				credentialSchema:
+					'https://raw.githubusercontent.com/uniandes-bancolombia-dapp-project/uniandes-bancolombia-schemas-dapp/main/dapp-ubanc.json',
+				type: 'Ubanc',
+				credentialSubject: {
+					id: user.walletId,
+					birthDate: user.birthDate,
+					documentType: user.documentType,
+					documentNumber: user.documentNumber,
+					name: user.name,
+					email: user.email,
+				},
+				expiration: 1713611619,
+			};
+			const tmp = JSON.stringify(body);
+			fetch(
+				'http://localhost:3001/v1/did%3Apolygonid%3Apolygon%3Amumbai%3A2qCbxtGfG8QinLU5eWt27YgehyK5ku3eHAmdPYPnGu/claims',
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						authorization: 'Basic dXNlcjpwYXNzd29yZA==',
+					},
+					body: JSON.stringify(body),
+				}
+			).then((response) => {
+				console.log('STATUS >> ' + response.status);
+				response.json().then((data) => {
+					fetch(
+						`http://localhost:3001/v1/did%3Apolygonid%3Apolygon%3Amumbai%3A2qCbxtGfG8QinLU5eWt27YgehyK5ku3eHAmdPYPnGu/claims/${data.id}`,
+						{
+							method: 'GET',
+							headers: {
+								authorization: 'Basic dXNlcjpwYXNzd29yZA==',
+							},
+						}
+					).then((response) => {
+						response.json().then((dataQr) => {
+							callback(dataQr);
+						});
+					});
+				});
+			});
+		}
+	}
 };
 
 // Create a map to store the auth requests and their session IDs

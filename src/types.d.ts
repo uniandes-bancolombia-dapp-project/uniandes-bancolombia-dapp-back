@@ -8,7 +8,7 @@ export type User = {
 	name: string;
 	documentType: DocumentType;
 	documentNumber: string;
-	birthDate: Date;
+	birthDate: number;
 	email: string;
 	walletId: string;
 };
