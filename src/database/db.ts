@@ -5,7 +5,7 @@ dotenv.config();
 
 const { DB_USER, DB_PASSWORD, DB_NAME } = process.env;
 
-const uri = `mongodb+srv://${DB_USER}:${DB_PASSWORD}@cluster0.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
+const uri = `mongodb://localhost:27017/${DB_NAME}`;
 
 const connectToDatabase = async () => {
 	try {

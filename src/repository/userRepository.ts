@@ -1,4 +1,4 @@
-import { connectToDatabase } from '../database/db.js';
+import { connectToDatabase } from '../database/db';
 import { User } from '../types.js';
 
 export const getUsers = async () => {
